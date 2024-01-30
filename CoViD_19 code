@@ -1,0 +1,36 @@
+import plotly.express as px
+import pandas as pd
+
+# Load the COVID-19 data from the CSV file
+df = pd.read_csv("covid19.csv")
+
+# Plot global total cases over time
+global_cases = df.sum(numeric_only=True).reset_index(name='Total Cases')
+fig = px.line(global_cases, x='index', y='Total Cases', title='Global Cases Over Time')
+fig.show()
+
+# Plot daily new cases globally
+daily_global_cases = df.sum(numeric_only=True).diff().reset_index(name='Daily New Cases')
+fig = px.line(daily_global_cases, x='index', y='Daily New Cases', title='Daily New Cases - Global')
+fig.show()
+
+# Plot cases over time for selectable countries
+fig = px.line(df.melt(id_vars=['Country/Region'], var_name='Date', value_name='Cases'),
+              x='Date', y='Cases', color='Country/Region',
+              title='Cases Over Time - Selectable Countries')
+fig.show()
+
+# Plot choropleth map for total cases worldwide
+fig = px.choropleth(df, locations='Country/Region', locationmode='country names', color=df.columns[-1], title='Total Cases Worldwide')
+fig.show()
+
+# Plot cases over time for selected Asian countries
+asia_cases_over_time = df[df['Country/Region'].isin(['China', 'India', 'Japan', 'South Korea'])].groupby('Country/Region').sum().T
+fig = px.line(asia_cases_over_time, x=asia_cases_over_time.index, y=asia_cases_over_time.columns, title='Cases Over Time - Asia')
+fig.show()
+
+# Plot cases over time for selected countries
+selected_countries = ['United States', 'India', 'Brazil', 'Russia', 'United Kingdom']
+selected_countries_cases_over_time = df[df['Country/Region'].isin(selected_countries)].melt(id_vars=['Country/Region'], var_name='Date', value_name='Cases')
+fig = px.line(selected_countries_cases_over_time, x='Date', y='Cases', color='Country/Region', title='Cases Over Time - Selected Countries')
+fig.show()
